@@ -27,7 +27,7 @@ public class WorkflowService {
     orderRequest.setOrderId(orderId);
 
     StartWorkflowRequest workflowRequest = new StartWorkflowRequest();
-    workflowRequest.setName("OrderWorkflow");
+    workflowRequest.setName("DemoOrderWorkflow");
     workflowRequest.setVersion(1);
     workflowRequest.setCorrelationId(orderId);
 

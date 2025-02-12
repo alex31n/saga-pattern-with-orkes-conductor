@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 public class OrderItem {
   @Id
   private UUID id;
+  private String orderId;
   private String productId;
   private Integer quantity;
 

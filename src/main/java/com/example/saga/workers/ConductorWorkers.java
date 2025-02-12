@@ -7,10 +7,12 @@ import com.netflix.conductor.sdk.workflow.task.WorkerTask;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
 
+@Log4j2
 @RequiredArgsConstructor
 @Component
 @ComponentScan(basePackages = {"io.orkes"})
@@ -20,6 +22,7 @@ public class ConductorWorkers {
 
   @WorkerTask(value = "create_order", threadCount = 3, pollingInterval = 300)
   public TaskResult orderFoodTask(CreateOrderRequest createOrderRequest) {
+    log.info("Create order: {}", createOrderRequest);
     Order order = orderService.createOrder(createOrderRequest);
 
     TaskResult result = new TaskResult();
