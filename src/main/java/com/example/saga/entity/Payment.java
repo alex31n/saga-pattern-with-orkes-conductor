@@ -1,5 +1,7 @@
 package com.example.saga.entity;
 
+import com.example.saga.enumeration.PaymentMethod;
+import com.example.saga.enumeration.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -18,30 +20,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "orders")
-public class Order {
+@Table(name = "payments")
+public class Payment {
 
   @Id
   private UUID id;
 
-  @Column(name = "customer_name")
-  private String customerName;
+  private String orderId;
 
-  @Column(name = "customer_id")
-  private String customerId;
+  private String paymentId;
 
-  @Column(name = "delivery_address")
-  private String deliveryAddress;
+  private double amount;
 
-  private Double amount;
+  private PaymentMethod paymentMethod;
+
+  private Status status;
 
   @Column(name = "created_at")
   private Instant createdAt;
 
   @Column(name = "updated_at")
   private Instant updatedAt;
-
-
 
   @PrePersist
   public void prePersist() {

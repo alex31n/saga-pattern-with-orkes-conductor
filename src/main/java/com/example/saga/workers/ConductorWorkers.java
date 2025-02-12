@@ -1,8 +1,12 @@
 package com.example.saga.workers;
 
 import com.example.saga.dto.CreateOrderRequest;
+import com.example.saga.dto.PaymentRequest;
 import com.example.saga.entity.Order;
+import com.example.saga.entity.Payment;
+import com.example.saga.enumeration.Status;
 import com.example.saga.services.OrderService;
+import com.example.saga.services.PaymentService;
 import com.netflix.conductor.sdk.workflow.task.WorkerTask;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,9 +24,11 @@ public class ConductorWorkers {
 
   private final OrderService orderService;
 
+  private final PaymentService paymentService;
+
   @WorkerTask(value = "create_order", threadCount = 3, pollingInterval = 300)
   public TaskResult orderFoodTask(CreateOrderRequest createOrderRequest) {
-    log.info("Create order: {}", createOrderRequest);
+    log.info("create_order: {}", createOrderRequest);
     Order order = orderService.createOrder(createOrderRequest);
 
     TaskResult result = new TaskResult();
@@ -36,6 +42,29 @@ public class ConductorWorkers {
       output.put("orderId", null);
       result.setStatus(TaskResult.Status.FAILED);
     }
+    return result;
+  }
+
+  @WorkerTask(value = "make_payment", threadCount = 2, pollingInterval = 300)
+  public TaskResult makePaymentTask(PaymentRequest paymentRequest) {
+    log.info("make_payment: {}", paymentRequest);
+    Payment payment = paymentService.createPayment(paymentRequest);
+
+    TaskResult result = new TaskResult();
+
+    Map<String, Object> output = new HashMap<>();
+    output.put("orderId", payment.getOrderId());
+    output.put("paymentId", payment.getPaymentId());
+    output.put("paymentStatus", payment.getStatus().name());
+
+    if(payment.getStatus() == Status.SUCCESSFUL) {
+      result.setStatus(TaskResult.Status.COMPLETED);
+    } else {
+      result.setStatus(TaskResult.Status.FAILED_WITH_TERMINAL_ERROR);
+    }
+
+    result.setOutputData(output);
+
     return result;
   }
 
