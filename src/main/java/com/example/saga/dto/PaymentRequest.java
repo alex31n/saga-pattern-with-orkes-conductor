@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentRequest {
   private String orderId;
+  private String workflowId;
   private String paymentId;
   private double amount;
   private PaymentMethod paymentMethod;

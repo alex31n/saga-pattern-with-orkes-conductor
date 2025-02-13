@@ -1,8 +1,13 @@
 package com.example.saga.services;
 
+import com.example.saga.dto.PaymentRequest;
+import com.netflix.conductor.client.http.WorkflowClient;
+import com.netflix.conductor.common.metadata.tasks.Task;
+import com.netflix.conductor.common.metadata.tasks.TaskResult.Status;
 import com.netflix.conductor.common.metadata.workflow.StartWorkflowRequest;
-import io.orkes.conductor.client.WorkflowClient;
+import com.netflix.conductor.common.run.Workflow;
 import com.example.saga.dto.OrderRequestDto;
+import io.orkes.conductor.client.http.OrkesTaskClient;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,13 +26,17 @@ public class WorkflowService {
 
   private final WorkflowClient workflowClient;
 
+  private final OrkesTaskClient taskClient;
+
+  private static final String workflowName = "demo_order_workflow";
+
   public Map<String, Object> startOrderWorkflow(OrderRequestDto orderRequest) {
 
     var orderId = UUID.randomUUID().toString();
     orderRequest.setOrderId(orderId);
 
     StartWorkflowRequest workflowRequest = new StartWorkflowRequest();
-    workflowRequest.setName("DemoOrderWorkflow");
+    workflowRequest.setName(workflowName);
     workflowRequest.setVersion(1);
     workflowRequest.setCorrelationId(orderId);
 
@@ -57,6 +66,42 @@ public class WorkflowService {
     }
 
     return Map.of("workflowId", workflowId);
+  }
+
+  public Map<String, Object> payment(PaymentRequest request) {
+
+    Workflow workflow = workflowClient.getWorkflow(request.getWorkflowId(), true);
+//    workflow.setCorrelationId(request.getOrderId());
+
+    // Retrieve the human task by task ID
+    Task paymentTask = workflow.getTaskByRefName("make_payment_ref");
+
+    /*if (paymentTask != null && paymentTask.getStatus() == Task.Status.IN_PROGRESS) {
+      TaskResult taskResult = new TaskResult();
+      taskResult.setTaskId(paymentTask.getTaskId());
+      taskResult.setStatus(TaskResult.Status.COMPLETED);
+      taskResult.setOutputData(new HashMap<>());
+      taskResult.setWorkflowInstanceId(workflow.getWorkflowId());
+
+
+      taskClient.updateTask(taskResult);
+    } else {
+      System.out.println("The task is either already completed or not found.");
+    }*/
+
+    Map<String, Object> inputData = new HashMap<>();
+    inputData.put("orderId", request.getOrderId());
+    inputData.put("paymentId", request.getPaymentId());
+    inputData.put("amount", request.getAmount());
+    inputData.put("paymentMethod", request.getPaymentMethod());
+//    paymentTask.setInputData(inputData);
+
+//    paymentTask.setStatus(Task.Status.COMPLETED);
+
+    // Update the task
+    taskClient.updateTask(request.getWorkflowId(),"make_payment_ref", Status.COMPLETED,inputData);
+
+    return Map.of("workflowId", workflow.getWorkflowId());
   }
 
 }

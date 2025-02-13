@@ -24,6 +24,9 @@ public class Order {
   @Id
   private UUID id;
 
+  @Column(name = "workflow_id")
+  private String workflowId;
+
   @Column(name = "customer_name")
   private String customerName;
 

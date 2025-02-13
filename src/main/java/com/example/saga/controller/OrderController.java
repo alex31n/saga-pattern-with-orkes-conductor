@@ -1,9 +1,8 @@
 package com.example.saga.controller;
 
-import com.example.saga.dto.CreateOrderRequest;
 import com.example.saga.dto.OrderRequestDto;
+import com.example.saga.dto.PaymentRequest;
 import com.example.saga.services.WorkflowService;
-import com.example.saga.workers.ConductorWorkers;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,5 +20,11 @@ public class OrderController {
   public ResponseEntity<Map<String, Object>> triggerFoodDeliveryFlow(@RequestBody OrderRequestDto foodDeliveryRequest) {
     return ResponseEntity.ok(workflowService.startOrderWorkflow(foodDeliveryRequest));
   }
+
+  @PostMapping(value = "/payment", produces = "application/json")
+  public ResponseEntity<Map<String, Object>> payment(@RequestBody PaymentRequest paymentRequest) {
+    return ResponseEntity.ok(workflowService.payment(paymentRequest));
+  }
+
 
 }
