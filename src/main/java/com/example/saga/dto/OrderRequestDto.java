@@ -1,6 +1,5 @@
 package com.example.saga.dto;
 
-import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +14,6 @@ public class OrderRequestDto {
   private String customerId;
   private String deliveryAddress;
   private Double amount;
-  private ArrayList<ProductItemDto> items;
+  private ProductItemDto item;
 
 }

@@ -2,7 +2,9 @@ package com.example.saga.workers;
 
 import com.example.saga.pojo.CreateOrder;
 import com.example.saga.pojo.ValidateBalance;
+import com.example.saga.pojo.ValidateInventory;
 import com.example.saga.services.AccountService;
+import com.example.saga.services.InventoryService;
 import com.example.saga.services.OrderService;
 import com.netflix.conductor.sdk.workflow.task.WorkerTask;
 import java.util.HashMap;
@@ -22,6 +24,8 @@ public class ConductorWorkers {
   private final OrderService orderService;
 
   private final AccountService accountService;
+
+  private final InventoryService inventoryService;
 
   @WorkerTask(value = "create_order", threadCount = 3, pollingInterval = 300)
   public TaskResult createOrderTask(CreateOrder createOrder) {
@@ -59,6 +63,28 @@ public class ConductorWorkers {
       output.put("orderId", null);
       result.setStatus(TaskResult.Status.FAILED);
     }
+    return result;
+  }
+
+  @WorkerTask(value = "validate_inventory", threadCount = 3, pollingInterval = 300)
+  public TaskResult validateInventoryTask(ValidateInventory input) {
+    log.info("ConductorWorkers validate_inventory: {}", input);
+
+    var inventoryResult = inventoryService.validateAndReserveInventory(input);
+
+    TaskResult result = new TaskResult();
+    Map<String, Object> output = new HashMap<>();
+
+    if (inventoryResult) {
+      output.put("orderId", input.getOrderId());
+      result.setOutputData(output);
+      result.setStatus(TaskResult.Status.COMPLETED);
+    } else {
+      output.put("orderId", null);
+      result.setStatus(TaskResult.Status.FAILED);
+    }
+
+    result.setStatus(TaskResult.Status.COMPLETED);
     return result;
   }
 

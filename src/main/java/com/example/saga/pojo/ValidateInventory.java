@@ -9,13 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOrder {
+public class ValidateInventory {
 
   private String orderId;
-  private String customerId;
-  private String deliveryAddress;
-  private Double amount;
   private OrderItem item;
-
+  private Double amount=0.0;
 
 }

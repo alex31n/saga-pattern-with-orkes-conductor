@@ -50,7 +50,7 @@ public class WorkflowService {
     inputData.put("customerId", requestDto.getCustomerId());
     inputData.put("deliveryAddress", requestDto.getDeliveryAddress());
     inputData.put("amount", requestDto.getAmount());
-    inputData.put("items", requestDto.getItems());
+    inputData.put("item", requestDto.getItem());
 
     workflowRequest.setInput(inputData);
 
