@@ -28,16 +28,15 @@ public class WorkflowService {
 
   private final OrkesTaskClient taskClient;
 
-  private static final String workflowName = "demo_order_workflow_2";
+  private static final String workflowName = "order_workflow";
 
-  public Map<String, Object> startOrderWorkflow(OrderRequestDto orderRequest) {
+  public Map<String, Object> startOrderWorkflow(OrderRequestDto requestDto) {
 
     var orderId = UUID.randomUUID().toString();
-    orderRequest.setOrderId(orderId);
 
     StartWorkflowRequest workflowRequest = new StartWorkflowRequest();
     workflowRequest.setName(workflowName);
-    workflowRequest.setVersion(1);
+//    workflowRequest.setVersion(1);
     workflowRequest.setCorrelationId(orderId);
 
     if (taskDomain != null) {
@@ -47,12 +46,11 @@ public class WorkflowService {
     }
 
     Map<String, Object> inputData = new HashMap<>();
-    inputData.put("orderId", orderRequest.getOrderId());
-    inputData.put("customerName", orderRequest.getCustomerName());
-    inputData.put("customerId", orderRequest.getCustomerId());
-    inputData.put("deliveryAddress", orderRequest.getDeliveryAddress());
-    inputData.put("amount", orderRequest.getAmount());
-    inputData.put("items", orderRequest.getItems());
+    inputData.put("orderId", orderId);
+    inputData.put("customerId", requestDto.getCustomerId());
+    inputData.put("deliveryAddress", requestDto.getDeliveryAddress());
+    inputData.put("amount", requestDto.getAmount());
+    inputData.put("items", requestDto.getItems());
 
     workflowRequest.setInput(inputData);
 

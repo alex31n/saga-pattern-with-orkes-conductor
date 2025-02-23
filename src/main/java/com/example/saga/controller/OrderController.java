@@ -17,8 +17,8 @@ public class OrderController {
   private final WorkflowService workflowService;
 
   @PostMapping(value = "/trigger-order-flow", produces = "application/json")
-  public ResponseEntity<Map<String, Object>> triggerFoodDeliveryFlow(@RequestBody OrderRequestDto foodDeliveryRequest) {
-    return ResponseEntity.ok(workflowService.startOrderWorkflow(foodDeliveryRequest));
+  public ResponseEntity<Map<String, Object>> triggerFoodDeliveryFlow(@RequestBody OrderRequestDto requestDto) {
+    return ResponseEntity.ok(workflowService.startOrderWorkflow(requestDto));
   }
 
   @PostMapping(value = "/payment", produces = "application/json")

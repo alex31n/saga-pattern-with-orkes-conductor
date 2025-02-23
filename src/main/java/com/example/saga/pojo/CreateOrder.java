@@ -1,4 +1,4 @@
-package com.example.saga.dto;
+package com.example.saga.pojo;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -10,10 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOrderRequest {
+public class CreateOrder {
 
   private String orderId;
-  private String customerName;
   private String customerId;
   private String deliveryAddress;
   private Double amount;

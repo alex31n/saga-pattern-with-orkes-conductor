@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderRequestDto {
 
-  private String orderId;
-  private String customerName;
   private String customerId;
   private String deliveryAddress;
   private Double amount;

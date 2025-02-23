@@ -1,12 +1,9 @@
 package com.example.saga.workers;
 
-import com.example.saga.dto.CreateOrderRequest;
-import com.example.saga.dto.PaymentRequest;
-import com.example.saga.entity.Order;
-import com.example.saga.entity.Payment;
-import com.example.saga.enumeration.Status;
+import com.example.saga.pojo.CreateOrder;
+import com.example.saga.pojo.ValidateBalance;
+import com.example.saga.services.AccountService;
 import com.example.saga.services.OrderService;
-import com.example.saga.services.PaymentService;
 import com.netflix.conductor.sdk.workflow.task.WorkerTask;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,18 +21,18 @@ public class ConductorWorkers {
 
   private final OrderService orderService;
 
-  private final PaymentService paymentService;
+  private final AccountService accountService;
 
   @WorkerTask(value = "create_order", threadCount = 3, pollingInterval = 300)
-  public TaskResult orderFoodTask(CreateOrderRequest createOrderRequest) {
-    log.info("ConductorWorkers create_order: {}", createOrderRequest);
-    Order order = orderService.createOrder(createOrderRequest);
+  public TaskResult createOrderTask(CreateOrder createOrder) {
+    log.info("ConductorWorkers create_order: {}", createOrder);
+    var orderResult = orderService.createOrder(createOrder);
 
     TaskResult result = new TaskResult();
     Map<String, Object> output = new HashMap<>();
 
-    if (order != null) {
-      output.put("orderId", order.getId().toString());
+    if (orderResult) {
+      output.put("orderId", createOrder.getOrderId());
       result.setOutputData(output);
       result.setStatus(TaskResult.Status.COMPLETED);
     } else {
@@ -45,64 +42,23 @@ public class ConductorWorkers {
     return result;
   }
 
-  @WorkerTask(value = "make_payment", threadCount = 2, pollingInterval = 300)
-  public TaskResult makePaymentTask(PaymentRequest paymentRequest) {
-    log.info("ConductorWorkers make_payment: {}", paymentRequest);
-    Payment payment = paymentService.createPayment(paymentRequest);
+  @WorkerTask(value = "validate_balance", threadCount = 3, pollingInterval = 300)
+  public TaskResult validateBalanceTask(ValidateBalance input) {
+    log.info("ConductorWorkers validate_balance: {}", input);
+
+    var balanceResult = accountService.validateAndReserveBalance(input);
 
     TaskResult result = new TaskResult();
-
     Map<String, Object> output = new HashMap<>();
-    output.put("orderId", payment.getOrderId());
-    output.put("paymentId", payment.getPaymentId());
-    output.put("paymentStatus", payment.getStatus().name());
 
-    if (payment.getStatus() == Status.SUCCESSFUL) {
+    if (balanceResult) {
+      output.put("orderId", input.getOrderId());
+      result.setOutputData(output);
       result.setStatus(TaskResult.Status.COMPLETED);
     } else {
-      result.setStatus(TaskResult.Status.FAILED_WITH_TERMINAL_ERROR);
+      output.put("orderId", null);
+      result.setStatus(TaskResult.Status.FAILED);
     }
-
-    result.setOutputData(output);
-
-    return result;
-  }
-
-  @WorkerTask(value = "ship_order", threadCount = 2, pollingInterval = 300)
-  public TaskResult shipOrderTask(Map<String, Object> request) {
-    log.info("ConductorWorkers ship_order: {}", request);
-
-    TaskResult result = new TaskResult();
-
-    Map<String, Object> output = new HashMap<>();
-
-    if (request.containsKey("orderId")) {
-      output.put("orderId", request.get("orderId"));
-    }
-
-    result.setStatus(TaskResult.Status.COMPLETED);
-
-    result.setOutputData(output);
-
-    return result;
-  }
-
-  @WorkerTask(value = "notify_customer", threadCount = 2, pollingInterval = 300)
-  public TaskResult notifyCustomerTask(Map<String, Object> request) {
-    log.info("ConductorWorkers notify_customer: {}", request);
-
-    TaskResult result = new TaskResult();
-
-    Map<String, Object> output = new HashMap<>();
-
-    if (request.containsKey("orderId")) {
-      output.put("orderId", request.get("orderId"));
-    }
-
-    result.setStatus(TaskResult.Status.COMPLETED);
-
-    result.setOutputData(output);
-
     return result;
   }
 
