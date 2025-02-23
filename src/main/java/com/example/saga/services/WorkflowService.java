@@ -28,7 +28,7 @@ public class WorkflowService {
 
   private final OrkesTaskClient taskClient;
 
-  private static final String workflowName = "demo_order_workflow";
+  private static final String workflowName = "demo_order_workflow_2";
 
   public Map<String, Object> startOrderWorkflow(OrderRequestDto orderRequest) {
 
@@ -99,7 +99,7 @@ public class WorkflowService {
 //    paymentTask.setStatus(Task.Status.COMPLETED);
 
     // Update the task
-    taskClient.updateTask(request.getWorkflowId(),"make_payment_ref", Status.COMPLETED,inputData);
+    taskClient.updateTask(request.getWorkflowId(),"human_ref", Status.FAILED,inputData);
 
     return Map.of("workflowId", workflow.getWorkflowId());
   }

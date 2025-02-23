@@ -28,13 +28,13 @@ public class ConductorWorkers {
 
   @WorkerTask(value = "create_order", threadCount = 3, pollingInterval = 300)
   public TaskResult orderFoodTask(CreateOrderRequest createOrderRequest) {
-    log.info("create_order: {}", createOrderRequest);
+    log.info("ConductorWorkers create_order: {}", createOrderRequest);
     Order order = orderService.createOrder(createOrderRequest);
 
     TaskResult result = new TaskResult();
     Map<String, Object> output = new HashMap<>();
 
-    if(order != null) {
+    if (order != null) {
       output.put("orderId", order.getId().toString());
       result.setOutputData(output);
       result.setStatus(TaskResult.Status.COMPLETED);
@@ -47,7 +47,7 @@ public class ConductorWorkers {
 
   @WorkerTask(value = "make_payment", threadCount = 2, pollingInterval = 300)
   public TaskResult makePaymentTask(PaymentRequest paymentRequest) {
-    log.info("make_payment: {}", paymentRequest);
+    log.info("ConductorWorkers make_payment: {}", paymentRequest);
     Payment payment = paymentService.createPayment(paymentRequest);
 
     TaskResult result = new TaskResult();
@@ -57,11 +57,49 @@ public class ConductorWorkers {
     output.put("paymentId", payment.getPaymentId());
     output.put("paymentStatus", payment.getStatus().name());
 
-    if(payment.getStatus() == Status.SUCCESSFUL) {
+    if (payment.getStatus() == Status.SUCCESSFUL) {
       result.setStatus(TaskResult.Status.COMPLETED);
     } else {
       result.setStatus(TaskResult.Status.FAILED_WITH_TERMINAL_ERROR);
     }
+
+    result.setOutputData(output);
+
+    return result;
+  }
+
+  @WorkerTask(value = "ship_order", threadCount = 2, pollingInterval = 300)
+  public TaskResult shipOrderTask(Map<String, Object> request) {
+    log.info("ConductorWorkers ship_order: {}", request);
+
+    TaskResult result = new TaskResult();
+
+    Map<String, Object> output = new HashMap<>();
+
+    if (request.containsKey("orderId")) {
+      output.put("orderId", request.get("orderId"));
+    }
+
+    result.setStatus(TaskResult.Status.COMPLETED);
+
+    result.setOutputData(output);
+
+    return result;
+  }
+
+  @WorkerTask(value = "notify_customer", threadCount = 2, pollingInterval = 300)
+  public TaskResult notifyCustomerTask(Map<String, Object> request) {
+    log.info("ConductorWorkers notify_customer: {}", request);
+
+    TaskResult result = new TaskResult();
+
+    Map<String, Object> output = new HashMap<>();
+
+    if (request.containsKey("orderId")) {
+      output.put("orderId", request.get("orderId"));
+    }
+
+    result.setStatus(TaskResult.Status.COMPLETED);
 
     result.setOutputData(output);
 
