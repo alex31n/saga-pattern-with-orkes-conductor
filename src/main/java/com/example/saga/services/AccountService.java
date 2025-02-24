@@ -16,6 +16,14 @@ public class AccountService {
 
   public boolean validateAndReserveBalance(ValidateBalance request) {
     log.info("validateAndReserveBalance");
+
+    try {
+      // 5 minutes
+      Thread.sleep(1000 * 60 * 5);
+    } catch (InterruptedException e) {
+      log.error(e.getMessage(), e);
+    }
+
     if (getAvailableBalance() >= request.getAmount()) {
       reservedAmount += request.getAmount();
       return true;
