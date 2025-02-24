@@ -1,5 +1,6 @@
 package com.example.saga.services;
 
+import com.example.saga.pojo.BalanceDeductionProcess;
 import com.example.saga.pojo.ValidateBalance;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -10,21 +11,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AccountService {
 
-  private double balancedAmount=1000;
-  private double reservedAmount=0;
+  private double balancedAmount = 1000;
+  private double reservedAmount = 0;
 
-  public boolean validateAndReserveBalance(ValidateBalance request){
+  public boolean validateAndReserveBalance(ValidateBalance request) {
     log.info("validateAndReserveBalance");
-    if (getAvailableBalance()>=request.getAmount()){
-      reservedAmount+=request.getAmount();
+    if (getAvailableBalance() >= request.getAmount()) {
+      reservedAmount += request.getAmount();
       return true;
-    }else {
+    } else {
       return false;
     }
   }
 
-  private double getAvailableBalance(){
-    return balancedAmount-reservedAmount;
+  private double getAvailableBalance() {
+    return balancedAmount - reservedAmount;
   }
 
+  public boolean deductBalance(BalanceDeductionProcess input) {
+    balancedAmount -= input.getAmount();
+    reservedAmount = 0;
+    return true;
+  }
 }
