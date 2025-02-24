@@ -1,7 +1,7 @@
 {
   "ownerApp": null,
   "createTime": 1740309909554,
-  "updateTime": 1740381056609,
+  "updateTime": 1740395432255,
   "createdBy": null,
   "updatedBy": null,
   "accessPolicy": {},
@@ -41,15 +41,11 @@
       "expression": null
     },
     {
-      "name": "validate_balance",
-      "taskReferenceName": "validate_balance_ref",
+      "name": "validate_order",
+      "taskReferenceName": "validate_order_ref",
       "description": null,
-      "inputParameters": {
-        "orderId": "${workflow.input.orderId}",
-        "customerId": "${workflow.input.customerId}",
-        "amount": "${workflow.input.amount}"
-      },
-      "type": "SIMPLE",
+      "inputParameters": {},
+      "type": "FORK_JOIN",
       "dynamicTaskNameParam": null,
       "caseValueParam": null,
       "caseExpression": null,
@@ -57,6 +53,70 @@
       "dynamicForkJoinTasksParam": null,
       "dynamicForkTasksParam": null,
       "dynamicForkTasksInputParamName": null,
+      "forkTasks": [
+        [
+          {
+            "name": "validate_inventory",
+            "taskReferenceName": "validate_inventory_ref",
+            "description": null,
+            "inputParameters": {
+              "orderId": "${workflow.input.orderId}",
+              "item": "${create_order_ref.input.item}",
+              "amount": "${workflow.input.amount}"
+            },
+            "type": "SIMPLE",
+            "dynamicTaskNameParam": null,
+            "caseValueParam": null,
+            "caseExpression": null,
+            "scriptExpression": null,
+            "dynamicForkJoinTasksParam": null,
+            "dynamicForkTasksParam": null,
+            "dynamicForkTasksInputParamName": null,
+            "startDelay": 0,
+            "subWorkflowParam": null,
+            "sink": null,
+            "optional": false,
+            "taskDefinition": null,
+            "rateLimited": null,
+            "asyncComplete": false,
+            "loopCondition": null,
+            "retryCount": null,
+            "evaluatorType": null,
+            "expression": null
+          }
+        ],
+        [
+          {
+            "name": "validate_balance",
+            "taskReferenceName": "validate_balance_ref",
+            "description": null,
+            "inputParameters": {
+              "orderId": "${workflow.input.orderId}",
+              "customerId": "${workflow.input.customerId}",
+              "amount": "${workflow.input.amount}"
+            },
+            "type": "SIMPLE",
+            "dynamicTaskNameParam": null,
+            "caseValueParam": null,
+            "caseExpression": null,
+            "scriptExpression": null,
+            "dynamicForkJoinTasksParam": null,
+            "dynamicForkTasksParam": null,
+            "dynamicForkTasksInputParamName": null,
+            "startDelay": 0,
+            "subWorkflowParam": null,
+            "sink": null,
+            "optional": false,
+            "taskDefinition": null,
+            "rateLimited": null,
+            "asyncComplete": false,
+            "loopCondition": null,
+            "retryCount": 0,
+            "evaluatorType": null,
+            "expression": null
+          }
+        ]
+      ],
       "startDelay": 0,
       "subWorkflowParam": null,
       "sink": null,
@@ -65,20 +125,20 @@
       "rateLimited": null,
       "asyncComplete": false,
       "loopCondition": null,
-      "retryCount": 0,
+      "retryCount": null,
       "evaluatorType": null,
       "expression": null
     },
     {
-      "name": "validate_inventory",
-      "taskReferenceName": "validate_inventory_ref",
+      "name": "join_validate_order",
+      "taskReferenceName": "join_validate_order_ref",
       "description": null,
-      "inputParameters": {
-        "orderId": "${workflow.input.orderId}",
-        "item": "${create_order_ref.input.item}",
-        "amount": "${workflow.input.amount}"
-      },
-      "type": "SIMPLE",
+      "inputParameters": {},
+      "type": "JOIN",
+      "joinOn": [
+        "validate_balance_ref",
+        "validate_inventory_ref"
+      ],
       "dynamicTaskNameParam": null,
       "caseValueParam": null,
       "caseExpression": null,
@@ -193,7 +253,7 @@
     "data": "${create_order_ref.output.response.body.data}",
     "source": "${create_order_ref.output.response.body.source}"
   },
-  "failureWorkflow": null,
+  "failureWorkflow": "",
   "schemaVersion": 2,
   "restartable": true,
   "workflowStatusListenerEnabled": false,
