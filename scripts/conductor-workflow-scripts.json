@@ -1,7 +1,7 @@
 {
   "ownerApp": null,
   "createTime": 1740309909554,
-  "updateTime": 1740395432255,
+  "updateTime": 1740467437841,
   "createdBy": null,
   "updatedBy": null,
   "accessPolicy": {},
@@ -111,7 +111,7 @@
             "rateLimited": null,
             "asyncComplete": false,
             "loopCondition": null,
-            "retryCount": 0,
+            "retryCount": null,
             "evaluatorType": null,
             "expression": null
           }
@@ -135,10 +135,6 @@
       "description": null,
       "inputParameters": {},
       "type": "JOIN",
-      "joinOn": [
-        "validate_balance_ref",
-        "validate_inventory_ref"
-      ],
       "dynamicTaskNameParam": null,
       "caseValueParam": null,
       "caseExpression": null,
@@ -148,6 +144,10 @@
       "dynamicForkTasksInputParamName": null,
       "startDelay": 0,
       "subWorkflowParam": null,
+      "joinOn": [
+        "validate_balance_ref",
+        "validate_inventory_ref"
+      ],
       "sink": null,
       "optional": false,
       "taskDefinition": null,
