@@ -1,6 +1,7 @@
 package com.example.account.service;
 
 import com.example.account.pojo.BalanceDeductionProcess;
+import com.example.account.pojo.FailedValidatingBalance;
 import com.example.account.pojo.ValidateBalance;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -38,6 +39,12 @@ public class AccountService {
 
   public boolean deductBalance(BalanceDeductionProcess input) {
     balancedAmount -= input.getAmount();
+    reservedAmount = 0;
+    return true;
+  }
+
+  public boolean fallbackReserveBalance(FailedValidatingBalance input){
+    log.info("fallbackReserveBalance");
     reservedAmount = 0;
     return true;
   }

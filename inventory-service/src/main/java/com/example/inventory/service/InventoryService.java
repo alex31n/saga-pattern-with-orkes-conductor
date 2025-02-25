@@ -1,5 +1,6 @@
 package com.example.inventory.service;
 
+import com.example.inventory.pojo.FailedValidatingInventory;
 import com.example.inventory.pojo.InventoryDeductionProcess;
 import com.example.inventory.pojo.ValidateInventory;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,12 @@ public class InventoryService {
 
   public boolean deductInventory(InventoryDeductionProcess input) {
     itemQuantity -= input.getItem().getQuantity();
-    reservedQuantity =0;
+    reservedQuantity = 0;
+    return true;
+  }
+
+  public boolean fallbackReserveInventory(FailedValidatingInventory input) {
+    reservedQuantity = 0;
     return true;
   }
 }

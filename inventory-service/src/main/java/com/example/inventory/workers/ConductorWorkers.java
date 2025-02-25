@@ -1,5 +1,6 @@
 package com.example.inventory.workers;
 
+import com.example.inventory.pojo.FailedValidatingInventory;
 import com.example.inventory.pojo.InventoryDeductionProcess;
 import com.example.inventory.pojo.ValidateInventory;
 import com.example.inventory.service.InventoryService;
@@ -20,7 +21,6 @@ public class ConductorWorkers {
 
   private final InventoryService inventoryService;
 
-
   @WorkerTask(value = "validate_inventory", threadCount = 3, pollingInterval = 300)
   public TaskResult validateInventoryTask(ValidateInventory input) {
     log.info("ConductorWorkers validate_inventory: {}", input);
@@ -29,18 +29,17 @@ public class ConductorWorkers {
 
     TaskResult result = new TaskResult();
     Map<String, Object> output = new HashMap<>();
+    output.put("orderId", input.getOrderId());
+    result.setOutputData(output);
 
     if (inventoryResult) {
-      output.put("orderId", input.getOrderId());
-      result.setOutputData(output);
       result.setStatus(TaskResult.Status.COMPLETED);
     } else {
-      output.put("orderId", null);
       result.setReasonForIncompletion("Stock is not available");
       result.setStatus(TaskResult.Status.FAILED);
     }
 
-    result.setStatus(TaskResult.Status.COMPLETED);
+
     return result;
   }
 
@@ -53,19 +52,36 @@ public class ConductorWorkers {
 
     TaskResult taskResult = new TaskResult();
     Map<String, Object> output = new HashMap<>();
+    output.put("orderId", input.getOrderId());
+    taskResult.setOutputData(output);
 
     if (result) {
-      output.put("orderId", input.getOrderId());
-      taskResult.setOutputData(output);
       taskResult.setStatus(TaskResult.Status.COMPLETED);
     } else {
-      output.put("orderId", null);
       taskResult.setStatus(TaskResult.Status.FAILED);
     }
 
-    taskResult.setStatus(TaskResult.Status.COMPLETED);
     return taskResult;
   }
 
+  @WorkerTask(value = "failed_validating_inventory", threadCount = 3, pollingInterval = 300)
+  public TaskResult failedValidatingInventoryTask(FailedValidatingInventory input) {
+    log.info("ConductorWorkers failed_validating_inventory: {}", input);
+
+    boolean result = inventoryService.fallbackReserveInventory(input);
+
+    TaskResult taskResult = new TaskResult();
+    Map<String, Object> output = new HashMap<>();
+    output.put("orderId", input.getOrderId());
+    taskResult.setOutputData(output);
+
+    if (result) {
+      taskResult.setStatus(TaskResult.Status.COMPLETED);
+    } else {
+      taskResult.setStatus(TaskResult.Status.FAILED);
+    }
+
+    return taskResult;
+  }
 
 }

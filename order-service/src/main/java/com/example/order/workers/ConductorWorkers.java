@@ -20,37 +20,22 @@ public class ConductorWorkers {
   private final OrderService orderService;
 
   @WorkerTask(value = "create_order", threadCount = 3, pollingInterval = 300)
-  public TaskResult createOrderTask(CreateOrder createOrder) {
-    log.info("ConductorWorkers create_order: {}", createOrder);
-    var orderResult = orderService.createOrder(createOrder);
+  public TaskResult createOrderTask(CreateOrder input) {
+    log.info("ConductorWorkers create_order: {}", input);
+    var orderResult = orderService.createOrder(input);
 
     TaskResult result = new TaskResult();
     Map<String, Object> output = new HashMap<>();
+    output.put("orderId", input.getOrderId());
+    result.setOutputData(output);
 
     if (orderResult) {
-      output.put("orderId", createOrder.getOrderId());
-      result.setOutputData(output);
       result.setStatus(TaskResult.Status.COMPLETED);
     } else {
-      output.put("orderId", null);
       result.setStatus(TaskResult.Status.FAILED);
     }
     return result;
   }
-
-
-  @WorkerTask(value = "json_transform_task", threadCount = 3, pollingInterval = 300)
-  public TaskResult json_transform_taskTask(Map<String, Object> input) {
-    log.info("ConductorWorkers json_transform_task: {}", input);
-
-    TaskResult result = new TaskResult();
-    Map<String, Object> output = new HashMap<>();
-
-    result.setStatus(TaskResult.Status.FAILED);
-    return result;
-  }
-
-
 
 
 }

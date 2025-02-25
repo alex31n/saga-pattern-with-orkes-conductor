@@ -1,6 +1,7 @@
 package com.example.account.workers;
 
 import com.example.account.pojo.BalanceDeductionProcess;
+import com.example.account.pojo.FailedValidatingBalance;
 import com.example.account.pojo.ValidateBalance;
 import com.example.account.service.AccountService;
 import com.netflix.conductor.sdk.workflow.task.WorkerTask;
@@ -29,18 +30,16 @@ public class ConductorWorkers {
 
     TaskResult result = new TaskResult();
     Map<String, Object> output = new HashMap<>();
+    output.put("orderId", input.getOrderId());
+    result.setOutputData(output);
 
-    /*if (balanceResult) {
-      output.put("orderId", input.getOrderId());
-      result.setOutputData(output);
+    if (balanceResult) {
       result.setStatus(TaskResult.Status.COMPLETED);
     } else {
-      output.put("orderId", null);
       result.setReasonForIncompletion("Insufficient balance");
       result.setStatus(TaskResult.Status.FAILED);
-    }*/
-    result.setReasonForIncompletion("Insufficient balance");
-    result.setStatus(TaskResult.Status.FAILED);
+    }
+
     return result;
   }
 
@@ -53,17 +52,36 @@ public class ConductorWorkers {
 
     TaskResult taskResult = new TaskResult();
     Map<String, Object> output = new HashMap<>();
+    output.put("orderId", input.getOrderId());
+    taskResult.setOutputData(output);
 
     if (result) {
-      output.put("orderId", input.getOrderId());
-      taskResult.setOutputData(output);
       taskResult.setStatus(TaskResult.Status.COMPLETED);
     } else {
-      output.put("orderId", null);
       taskResult.setStatus(TaskResult.Status.FAILED);
     }
 
-    taskResult.setStatus(TaskResult.Status.COMPLETED);
+    return taskResult;
+  }
+
+
+  @WorkerTask(value = "failed_validating_balance", threadCount = 3, pollingInterval = 300)
+  public TaskResult failedValidatingBalanceTask(FailedValidatingBalance input) {
+    log.info("ConductorWorkers balance_deduction_process: {}", input);
+
+    boolean result = accountService.fallbackReserveBalance(input);
+
+    TaskResult taskResult = new TaskResult();
+    Map<String, Object> output = new HashMap<>();
+    output.put("orderId", input.getOrderId());
+    taskResult.setOutputData(output);
+
+    if (result) {
+      taskResult.setStatus(TaskResult.Status.COMPLETED);
+    } else {
+      taskResult.setStatus(TaskResult.Status.FAILED);
+    }
+
     return taskResult;
   }
 
