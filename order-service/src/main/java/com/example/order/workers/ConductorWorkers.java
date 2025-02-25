@@ -38,4 +38,19 @@ public class ConductorWorkers {
     return result;
   }
 
+
+  @WorkerTask(value = "json_transform_task", threadCount = 3, pollingInterval = 300)
+  public TaskResult json_transform_taskTask(Map<String, Object> input) {
+    log.info("ConductorWorkers json_transform_task: {}", input);
+
+    TaskResult result = new TaskResult();
+    Map<String, Object> output = new HashMap<>();
+
+    result.setStatus(TaskResult.Status.FAILED);
+    return result;
+  }
+
+
+
+
 }

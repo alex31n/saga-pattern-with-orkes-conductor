@@ -30,7 +30,7 @@ public class ConductorWorkers {
     TaskResult result = new TaskResult();
     Map<String, Object> output = new HashMap<>();
 
-    if (balanceResult) {
+    /*if (balanceResult) {
       output.put("orderId", input.getOrderId());
       result.setOutputData(output);
       result.setStatus(TaskResult.Status.COMPLETED);
@@ -38,7 +38,9 @@ public class ConductorWorkers {
       output.put("orderId", null);
       result.setReasonForIncompletion("Insufficient balance");
       result.setStatus(TaskResult.Status.FAILED);
-    }
+    }*/
+    result.setReasonForIncompletion("Insufficient balance");
+    result.setStatus(TaskResult.Status.FAILED);
     return result;
   }
 
